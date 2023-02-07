@@ -5,6 +5,7 @@ import com.carrot.usercenter.pojo.request.LoginRequestUser;
 import com.carrot.usercenter.pojo.request.RegisterRequestUser;
 import com.carrot.usercenter.service.UserService;
 import com.carrot.usercenter.utils.RoleUtils;
+import com.carrot.usercenter.utils.SafetyUserUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.carrot.usercenter.constant.UserConstant.ROLE_ADMIN;
 import static com.carrot.usercenter.constant.UserConstant.USER_LOGIN_STATUS;
@@ -76,14 +78,19 @@ public class UserController {
      * @return User集合
      */
     @GetMapping("/select")
-    public List<User> userSelect(@RequestParam String username,HttpServletRequest request){
+    public List<User> userSelect(String username,HttpServletRequest request){
         boolean result = RoleUtils.isAdmin(request);
         if (!result) {
           return new ArrayList<>();
         }
         QueryWrapper<User> wrapper = new QueryWrapper<>();
-        wrapper.like("username",username);
-        return userService.list(wrapper);
+        //
+        if (StringUtils.isNotBlank(username)) {
+            wrapper.like("username",username);
+        }
+        List<User> list = userService.list(wrapper);
+        return list.stream().map(user->
+        SafetyUserUtils.getSafetyUser(user)).collect(Collectors.toList());
     }
 
     /**

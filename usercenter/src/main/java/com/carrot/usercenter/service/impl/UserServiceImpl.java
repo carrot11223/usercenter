@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.carrot.usercenter.pojo.User;
 import com.carrot.usercenter.service.UserService;
 import com.carrot.usercenter.mapper.UserMapper;
+import com.carrot.usercenter.utils.SafetyUserUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -118,17 +119,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             return null;
         }
         //对用户进行脱敏操作
-        User safetyUser = new User();
-        safetyUser.setId(resultUser.getId());
-        safetyUser.setUsername(resultUser.getUsername());
-        safetyUser.setUserAccount(resultUser.getUserAccount());
-        safetyUser.setAvatarUrl(resultUser.getAvatarUrl());
-        safetyUser.setGender(resultUser.getGender());
-        // safetyUser.setUserPassword(""); 密码不能返回，脱敏的核心
-        safetyUser.setRole(resultUser.getRole());
-        safetyUser.setPhone(resultUser.getPhone());
-        safetyUser.setEmail(resultUser.getEmail());
-        safetyUser.setUserStatus(resultUser.getUserStatus());
+        User safetyUser = SafetyUserUtils.getSafetyUser(resultUser);
         //记录用户登录态，session
         request.getSession().setAttribute(USER_LOGIN_STATUS, safetyUser);
         return safetyUser;
