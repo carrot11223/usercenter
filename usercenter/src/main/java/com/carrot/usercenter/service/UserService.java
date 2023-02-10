@@ -1,7 +1,7 @@
 package com.carrot.usercenter.service;
 
-import com.carrot.usercenter.pojo.User;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.carrot.usercenter.pojo.User;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -19,7 +19,7 @@ public interface UserService extends IService<User> {
      * @param checkPassword 用户校验密码
      * @return 新用户注册的id
      */
-    Long userRegister(String userAccount, String userPassword, String checkPassword);
+    Long userRegister(String userAccount, String userPassword, String checkPassword,String planetCode);
 
     /**
      * 用户登录校验接口
@@ -29,4 +29,12 @@ public interface UserService extends IService<User> {
      * @return 脱敏之后的用户信息
      */
     User userLogin(String userAccount, String userPassword, HttpServletRequest request);
+
+    /**
+     * 用户注销
+     * @param request
+     */
+    int userLogout(HttpServletRequest request);
+
+
 }

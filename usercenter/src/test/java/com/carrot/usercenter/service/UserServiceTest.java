@@ -1,13 +1,10 @@
 package com.carrot.usercenter.service;
-import java.util.Date;
 
 import com.carrot.usercenter.pojo.User;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * 用户服务测试
@@ -45,37 +42,38 @@ class UserServiceTest {
         String userAccount = "ca";
         String userPassword = "12345678";
         String checkPassword = "12345678";
-        Long result = userService.userRegister(userAccount, userPassword, checkPassword);
+        String planetCode = "1";
+        Long result = userService.userRegister(userAccount, userPassword, checkPassword,planetCode);
         Assertions.assertEquals(-1,result);
         //测试密码不小于8位
         userAccount = "carrot";
         userPassword = "123456";
         checkPassword = "123456";
-        result = userService.userRegister(userAccount, userPassword, checkPassword);
+        result = userService.userRegister(userAccount, userPassword, checkPassword,planetCode);
         Assertions.assertEquals(-1,result);
         //测试账户重复
         userAccount = "1234";
         userPassword = "123456789";
         checkPassword = "123456789";
-        result = userService.userRegister(userAccount, userPassword, checkPassword);
+        result = userService.userRegister(userAccount, userPassword, checkPassword,planetCode);
         Assertions.assertEquals(-1,result);
         //测试账户包含特殊字符
         userAccount = "123】do";
         userPassword = "123456789";
         checkPassword = "123456789";
-        result = userService.userRegister(userAccount, userPassword, checkPassword);
+        result = userService.userRegister(userAccount, userPassword, checkPassword,planetCode);
         Assertions.assertEquals(-1,result);
         //测试密码和校验密码不相同
         userAccount = "22333";
         userPassword = "123456789";
         checkPassword = "12345678";
-        result = userService.userRegister(userAccount, userPassword, checkPassword);
+        result = userService.userRegister(userAccount, userPassword, checkPassword,planetCode);
         Assertions.assertEquals(-1,result);
         //测试正确的数据
         userAccount = "carrotM";
         userPassword = "123456789";
         checkPassword = "123456789";
-        result = userService.userRegister(userAccount, userPassword, checkPassword);
+        result = userService.userRegister(userAccount, userPassword, checkPassword,planetCode);
         Assertions.assertTrue(result>0);
     }
 }

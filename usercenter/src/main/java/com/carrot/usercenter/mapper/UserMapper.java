@@ -1,7 +1,7 @@
 package com.carrot.usercenter.mapper;
 
-import com.carrot.usercenter.pojo.User;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.carrot.usercenter.pojo.User;
 import org.springframework.stereotype.Repository;
 
 /**

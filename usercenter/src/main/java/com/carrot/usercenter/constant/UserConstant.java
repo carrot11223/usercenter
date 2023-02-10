@@ -1,7 +1,5 @@
 package com.carrot.usercenter.constant;
 
-import com.carrot.usercenter.pojo.User;
-
 /**
  * 用户常量
  *

@@ -1,7 +1,5 @@
 package com.carrot.usercenter.service.impl;
 
-import java.util.Date;
-
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.carrot.usercenter.pojo.User;
@@ -14,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import java.sql.Wrapper;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,9 +36,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
      * @return 新用户注册的id
      */
     @Override
-    public Long userRegister(String userAccount, String userPassword, String checkPassword) {
+    public Long userRegister(String userAccount, String userPassword, String checkPassword,String planetCode) {
         //1.判断是否为空
-        if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword)) {
+        if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword,planetCode)) {
             return -1L;
         }
         //判断账户长度是否小于4
@@ -50,6 +47,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         }
         //判断密码是否小于8
         if (userPassword.length() < 8) {
+            return -1L;
+        }
+        //星球编号长度的限制
+        if (planetCode.length() > 5){
+            return -1L;
+        }
+        if (planetCode.length() < 0){
             return -1L;
         }
         //判断账户是否包含特殊字符，使用正则表达式
@@ -69,12 +73,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         if (count > 0) {
             return -1L;
         }
+
+        //判断是否星球编号重复
+         wrapper = new QueryWrapper<>();
+        wrapper.eq("planetCode", planetCode);
+        count = this.count(wrapper);
+        if (count > 0) {
+            return -1L;
+        }
         //2.对密码进行加密，存储到数据库当中
         String newPassword = DigestUtils.md5DigestAsHex((toComplex + userPassword).getBytes());
         //3.插入数据
         User user = new User();
         user.setUserAccount(userAccount);
         user.setUserPassword(newPassword);
+        user.setPlanetCode(planetCode);
         this.save(user);
         return user.getId();
     }
@@ -123,6 +136,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         //记录用户登录态，session
         request.getSession().setAttribute(USER_LOGIN_STATUS, safetyUser);
         return safetyUser;
+    }
+
+    /**
+     * 用户注销
+     *
+     * @param request
+     */
+    @Override
+    public int userLogout(HttpServletRequest request) {
+       request.getSession().removeAttribute(USER_LOGIN_STATUS);
+       return 1;
     }
 }
 

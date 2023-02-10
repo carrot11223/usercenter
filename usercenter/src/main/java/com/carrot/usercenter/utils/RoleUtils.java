@@ -1,11 +1,9 @@
 package com.carrot.usercenter.utils;
 
 import com.carrot.usercenter.pojo.User;
-import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.util.ArrayList;
 
 import static com.carrot.usercenter.constant.UserConstant.ROLE_ADMIN;
 import static com.carrot.usercenter.constant.UserConstant.USER_LOGIN_STATUS;

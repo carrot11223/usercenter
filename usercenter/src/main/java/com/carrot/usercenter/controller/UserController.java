@@ -1,5 +1,6 @@
 package com.carrot.usercenter.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.carrot.usercenter.common.BaseResponse;
 import com.carrot.usercenter.pojo.User;
 import com.carrot.usercenter.pojo.request.LoginRequestUser;
 import com.carrot.usercenter.pojo.request.RegisterRequestUser;
@@ -11,12 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.carrot.usercenter.constant.UserConstant.ROLE_ADMIN;
 import static com.carrot.usercenter.constant.UserConstant.USER_LOGIN_STATUS;
 
 /**
@@ -37,18 +36,21 @@ public class UserController {
      * @return 注册id
      */
     @PostMapping("/register")
-    public Long userRegister(@RequestBody RegisterRequestUser registerRequestUser) {
+    public BaseResponse<User> userRegister(@RequestBody RegisterRequestUser registerRequestUser) {
         if (registerRequestUser == null) {
             return null;
         }
         String userAccount = registerRequestUser.getUserAccount();
         String userPassword = registerRequestUser.getUserPassword();
         String checkPassword = registerRequestUser.getCheckPassword();
+        String planetCode = registerRequestUser.getPlanetCode();
         //做基础判断，若为空，则无需进入业务层
-        if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword)) {
+        if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword,planetCode)) {
             return null;
         }
-        return userService.userRegister(userAccount, userPassword, checkPassword);
+        Long id = userService.userRegister(userAccount, userPassword, checkPassword, planetCode);
+        //return new BaseResponse(0,id,"ok");
+         return new BaseResponse(0,id,"ok");
     }
 
     /**
@@ -58,7 +60,7 @@ public class UserController {
      * @return 脱敏的登录用户
      */
     @PostMapping("/login")
-    public User userLogin(@RequestBody LoginRequestUser loginRequestUser, HttpServletRequest request) {
+    public BaseResponse<User> userLogin(@RequestBody LoginRequestUser loginRequestUser, HttpServletRequest request) {
         if (loginRequestUser == null) {
             return null;
         }
@@ -68,7 +70,41 @@ public class UserController {
         if (StringUtils.isAnyBlank(userAccount, userPassword)) {
             return null;
         }
-        return userService.userLogin(userAccount, userPassword, request);
+        User user = userService.userLogin(userAccount, userPassword, request);
+        return new BaseResponse(0,user,"ok");
+    }
+
+    /**
+     * 用户注销
+     * @param request
+     * @return 返回为1 注销成功
+     */
+    @PostMapping("/logout")
+    public BaseResponse<Integer> userLogout(HttpServletRequest request) {
+        if (request == null) {
+            return null;
+        }
+        Integer i = userService.userLogout(request);
+        return new BaseResponse(0,i,"ok");
+    }
+
+    /**
+     * 获取当前用户信息
+     * @param request
+     * @return从数据库查到的用户信息
+     */
+    @GetMapping("/current")
+    public BaseResponse<User> getCurrentUser(HttpServletRequest request) {
+        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATUS);
+        User user = (User)userObj;
+        if (user==null){
+            return null;
+        }
+
+        //对于频繁更新的数据，尽量去数据库里面查，从session里面获取的东西都是不经常变动的
+        User safeUser = userService.getById(user.getId());
+        User safetyUser = SafetyUserUtils.getSafetyUser(safeUser);
+        return new BaseResponse(0,safetyUser,"ok");
     }
 
     /**
@@ -77,11 +113,11 @@ public class UserController {
      * @param username 用户名
      * @return User集合
      */
-    @GetMapping("/select")
-    public List<User> userSelect(String username,HttpServletRequest request){
+    @GetMapping("/search")
+    public BaseResponse<List<User>> userSelect(String username,HttpServletRequest request){
         boolean result = RoleUtils.isAdmin(request);
         if (!result) {
-          return new ArrayList<>();
+          return null;
         }
         QueryWrapper<User> wrapper = new QueryWrapper<>();
         //
@@ -89,8 +125,9 @@ public class UserController {
             wrapper.like("username",username);
         }
         List<User> list = userService.list(wrapper);
-        return list.stream().map(user->
-        SafetyUserUtils.getSafetyUser(user)).collect(Collectors.toList());
+        List<User> userList = list.stream().map(user ->
+                SafetyUserUtils.getSafetyUser(user)).collect(Collectors.toList());
+        return new BaseResponse(0,userList,"ok");
     }
 
     /**
@@ -100,14 +137,17 @@ public class UserController {
      * @return 是否删除成功
      */
     @DeleteMapping("/")
-    public boolean userDelete(@RequestParam Long id,HttpServletRequest request){
+    public BaseResponse<Boolean> userDelete(@RequestParam Long id,HttpServletRequest request){
         boolean result = RoleUtils.isAdmin(request);
         if (!result) {
-            return false;
+            return null;
         }
         if (id < 0){
-            return false;
+            return null;
         }
-       return userService.removeById(id);
+        boolean b = userService.removeById(id);
+        return new BaseResponse(0,b,"ok");
+
     }
+    
 }

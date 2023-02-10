@@ -27,7 +27,6 @@ public class User implements Serializable {
     /**
      * 账户
      */
-
     private String userAccount;
 
     /**
@@ -63,11 +62,6 @@ public class User implements Serializable {
     private Integer userStatus;
 
     /**
-     * 用户角色： 0为普通用户，1为管理员
-     */
-    private Integer role;
-
-    /**
      * 创建时间
      */
     private Date createTime;
@@ -82,6 +76,16 @@ public class User implements Serializable {
      */
     @TableLogic
     private Byte isDelete;
+
+    /**
+     * 用户角色： 0为普通用户，1为管理员
+     */
+    private Integer role;
+
+    /**
+     * 太阳系种族人的编号
+     */
+    private String planetCode;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
@@ -109,7 +113,9 @@ public class User implements Serializable {
             && (this.getUserStatus() == null ? other.getUserStatus() == null : this.getUserStatus().equals(other.getUserStatus()))
             && (this.getCreateTime() == null ? other.getCreateTime() == null : this.getCreateTime().equals(other.getCreateTime()))
             && (this.getUpdateTime() == null ? other.getUpdateTime() == null : this.getUpdateTime().equals(other.getUpdateTime()))
-            && (this.getIsDelete() == null ? other.getIsDelete() == null : this.getIsDelete().equals(other.getIsDelete()));
+            && (this.getIsDelete() == null ? other.getIsDelete() == null : this.getIsDelete().equals(other.getIsDelete()))
+            && (this.getRole() == null ? other.getRole() == null : this.getRole().equals(other.getRole()))
+            && (this.getPlanetCode() == null ? other.getPlanetCode() == null : this.getPlanetCode().equals(other.getPlanetCode()));
     }
 
     @Override
@@ -128,6 +134,8 @@ public class User implements Serializable {
         result = prime * result + ((getCreateTime() == null) ? 0 : getCreateTime().hashCode());
         result = prime * result + ((getUpdateTime() == null) ? 0 : getUpdateTime().hashCode());
         result = prime * result + ((getIsDelete() == null) ? 0 : getIsDelete().hashCode());
+        result = prime * result + ((getRole() == null) ? 0 : getRole().hashCode());
+        result = prime * result + ((getPlanetCode() == null) ? 0 : getPlanetCode().hashCode());
         return result;
     }
 
@@ -149,6 +157,8 @@ public class User implements Serializable {
         sb.append(", createTime=").append(createTime);
         sb.append(", updateTime=").append(updateTime);
         sb.append(", isDelete=").append(isDelete);
+        sb.append(", role=").append(role);
+        sb.append(", planetCode=").append(planetCode);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();
