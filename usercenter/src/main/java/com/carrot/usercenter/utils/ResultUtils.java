@@ -28,4 +28,29 @@ public class ResultUtils {
         //状态码 ： 0默认表示成功
         return new BaseResponse(errorCode);
     }
+
+    /**
+     * 返回错误的通用对象
+     *
+     */
+    public static <T>BaseResponse error(ErrorCode errorCode,String message,String description){
+        //状态码 ： 0默认表示成功
+        return new BaseResponse(errorCode.getCode(),message,description);
+    }
+    /**
+     * 返回错误的通用对象
+     *
+     */
+    public static <T>BaseResponse error(ErrorCode errorCode,String description){
+        //状态码 ： 0默认表示成功
+        return new BaseResponse(errorCode.getCode(),errorCode.getMessage(),description);
+    }
+    /**
+     * 返回错误的通用对象
+     *
+     */
+    public static <T>BaseResponse error(int errorCode,String message,String description){
+        //状态码 ： 0默认表示成功
+        return new BaseResponse(errorCode,message,description);
+    }
 }

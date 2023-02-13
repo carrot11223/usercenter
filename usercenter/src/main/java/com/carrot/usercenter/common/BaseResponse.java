@@ -33,7 +33,7 @@ public class BaseResponse<T> implements Serializable {
     }
 
     public BaseResponse(int code, T data,String description) {
-        this(code,data,"","");
+        this(code,data,"",description);
     }
     public BaseResponse(ErrorCode errorCode){
         this.code = errorCode.getCode();
@@ -41,4 +41,8 @@ public class BaseResponse<T> implements Serializable {
         this.message= errorCode.getMessage();
         this.description = errorCode.getDescription();
     }
+    public BaseResponse(int code, String message,String description) {
+        this(code,null,message,description);
+    }
+
 }

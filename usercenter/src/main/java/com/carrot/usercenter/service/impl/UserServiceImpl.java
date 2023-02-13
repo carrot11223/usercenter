@@ -59,26 +59,28 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
         }
         //星球编号长度的限制
-        if (planetCode.length() < 0){
-            throw new BusinessException(ErrorCode.PARAMS_ERROR,"星球编号长度小于0");
+        if (Integer.parseInt(planetCode)< 0){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"星球编号小于0");
 
         }
         //判断账户是否包含特殊字符，使用正则表达式
         String validPatern = "[`~!@#$%^&*()+=|{}':;',\\\\[\\\\].<>/?~！@#￥%……&*（）——+|{}【】‘；：”“’。，、？]";
         Matcher matcher = Pattern.compile(validPatern).matcher(userAccount);
         if (matcher.find()) {
-            return -1L;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"账户当中包含特殊字符");
         }
         //判断密码和校验
         if (!userPassword.equals(checkPassword)) {
-            return -1L;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"两次输入密码不一致");
+
         }
         //判断是否账户重复
         QueryWrapper<User> wrapper = new QueryWrapper<>();
         wrapper.eq("userAccount", userAccount);
         long count = this.count(wrapper);
         if (count > 0) {
-            return -1L;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"账户已存在，请重新登录");
+
         }
 
         //判断是否星球编号重复
@@ -86,7 +88,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         wrapper.eq("planetCode", planetCode);
         count = this.count(wrapper);
         if (count > 0) {
-            return -1L;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"星球编号已存在，编号重复");
         }
         //2.对密码进行加密，存储到数据库当中
         String newPassword = DigestUtils.md5DigestAsHex((toComplex + userPassword).getBytes());
@@ -111,21 +113,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         //判断是否为空
         if (StringUtils.isAnyBlank(userAccount, userPassword)) {
             //to do自定义异常
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"登录账户或密码为空");
         }
         //判断账户长度是否小于4
         if (userAccount.length() < 4) {
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"账户长度小于4");
         }
         //判断密码是否小于8
         if (userPassword.length() < 8) {
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"账户密码小于8");
         }
         //判断账户是否包含特殊字符，使用正则表达式
         String validPatern = "[`~!@#$%^&*()+=|{}':;',\\\\[\\\\].<>/?~！@#￥%……&*（）——+|{}【】‘；：”“’。，、？]";
         Matcher matcher = Pattern.compile(validPatern).matcher(userAccount);
         if (matcher.find()) {
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"账户当中包含特殊字符");
         }
         //对密码进行加密，在数据库中查询
         String newPassword = DigestUtils.md5DigestAsHex((toComplex + userPassword).getBytes());
@@ -135,8 +137,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         User resultUser = this.getOne(wrapper);
         if (resultUser == null) {
             //日志打印错误信息，方便后期定位
-            log.info("login failed,cause userAccount cannot match userPassword");
-            return null;
+            //log.info("login failed,cause userAccount cannot match userPassword");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"账号密码不匹配");
         }
         //对用户进行脱敏操作
         User safetyUser = SafetyUserUtils.getSafetyUser(resultUser);
@@ -153,7 +155,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Override
     public int userLogout(HttpServletRequest request) {
        request.getSession().removeAttribute(USER_LOGIN_STATUS);
-       return 1;
+       return 0;
     }
 }
 

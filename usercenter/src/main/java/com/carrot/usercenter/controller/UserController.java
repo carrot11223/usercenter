@@ -51,7 +51,7 @@ public class UserController {
         String planetCode = registerRequestUser.getPlanetCode();
         //做基础判断，若为空，则无需进入业务层
         if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword,planetCode)) {
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         Long id = userService.userRegister(userAccount, userPassword, checkPassword, planetCode);
         return ResultUtils.success(id);
@@ -66,13 +66,13 @@ public class UserController {
     @PostMapping("/login")
     public BaseResponse<User> userLogin(@RequestBody LoginRequestUser loginRequestUser, HttpServletRequest request) {
         if (loginRequestUser == null) {
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         String userAccount = loginRequestUser.getUserAccount();
         String userPassword = loginRequestUser.getUserPassword();
         //做基础判断，若为空，则无需进入业务层
         if (StringUtils.isAnyBlank(userAccount, userPassword)) {
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         User user = userService.userLogin(userAccount, userPassword, request);
         return ResultUtils.success(user);
@@ -86,11 +86,11 @@ public class UserController {
     @PostMapping("/logout")
     public BaseResponse<Integer> userLogout(HttpServletRequest request) {
         if (request == null) {
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        //注销成功返回 1
-        int result = 1;
-        return ResultUtils.success(result);
+        int i = userService.userLogout(request);
+        //注销成功
+        return ResultUtils.success("账号注销成功");
     }
 
     /**
@@ -103,7 +103,7 @@ public class UserController {
         Object userObj = request.getSession().getAttribute(USER_LOGIN_STATUS);
         User user = (User)userObj;
         if (user==null){
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
 
         //对于频繁更新的数据，尽量去数据库里面查，从session里面获取的东西都是不经常变动的
@@ -148,10 +148,10 @@ public class UserController {
     public BaseResponse<Boolean> userDelete(@RequestParam Long id,HttpServletRequest request){
         boolean result = RoleUtils.isAdmin(request);
         if (!result) {
-            return null;
+            throw new BusinessException(ErrorCode.NO_AUTH);
         }
         if (id < 0){
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         Boolean res = userService.removeById(id);
         return ResultUtils.success(res);
