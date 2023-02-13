@@ -1,13 +1,17 @@
 package com.carrot.usercenter.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.carrot.usercenter.common.BaseResponse;
+import com.carrot.usercenter.common.ErrorCode;
+import com.carrot.usercenter.exception.BusinessException;
 import com.carrot.usercenter.pojo.User;
 import com.carrot.usercenter.pojo.request.LoginRequestUser;
 import com.carrot.usercenter.pojo.request.RegisterRequestUser;
 import com.carrot.usercenter.service.UserService;
+import com.carrot.usercenter.utils.ResultUtils;
 import com.carrot.usercenter.utils.RoleUtils;
 import com.carrot.usercenter.utils.SafetyUserUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.omg.PortableInterceptor.INACTIVE;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,9 +40,10 @@ public class UserController {
      * @return 注册id
      */
     @PostMapping("/register")
-    public BaseResponse<User> userRegister(@RequestBody RegisterRequestUser registerRequestUser) {
+    public BaseResponse<Long> userRegister(@RequestBody RegisterRequestUser registerRequestUser) {
         if (registerRequestUser == null) {
-            return null;
+            //return ResultUtils.error(ErrorCode.NULL_ERROR);
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         String userAccount = registerRequestUser.getUserAccount();
         String userPassword = registerRequestUser.getUserPassword();
@@ -49,8 +54,7 @@ public class UserController {
             return null;
         }
         Long id = userService.userRegister(userAccount, userPassword, checkPassword, planetCode);
-        //return new BaseResponse(0,id,"ok");
-         return new BaseResponse(0,id,"ok");
+        return ResultUtils.success(id);
     }
 
     /**
@@ -71,7 +75,7 @@ public class UserController {
             return null;
         }
         User user = userService.userLogin(userAccount, userPassword, request);
-        return new BaseResponse(0,user,"ok");
+        return ResultUtils.success(user);
     }
 
     /**
@@ -84,8 +88,9 @@ public class UserController {
         if (request == null) {
             return null;
         }
-        Integer i = userService.userLogout(request);
-        return new BaseResponse(0,i,"ok");
+        //注销成功返回 1
+        int result = 1;
+        return ResultUtils.success(result);
     }
 
     /**
@@ -104,7 +109,9 @@ public class UserController {
         //对于频繁更新的数据，尽量去数据库里面查，从session里面获取的东西都是不经常变动的
         User safeUser = userService.getById(user.getId());
         User safetyUser = SafetyUserUtils.getSafetyUser(safeUser);
-        return new BaseResponse(0,safetyUser,"ok");
+        return ResultUtils.success(safetyUser);
+        //return safetyUser;
+        //return new BaseResponse(0,safetyUser,"ok");
     }
 
     /**
@@ -117,7 +124,7 @@ public class UserController {
     public BaseResponse<List<User>> userSelect(String username,HttpServletRequest request){
         boolean result = RoleUtils.isAdmin(request);
         if (!result) {
-          return null;
+          throw new BusinessException(ErrorCode.NO_AUTH);
         }
         QueryWrapper<User> wrapper = new QueryWrapper<>();
         //
@@ -125,9 +132,10 @@ public class UserController {
             wrapper.like("username",username);
         }
         List<User> list = userService.list(wrapper);
-        List<User> userList = list.stream().map(user ->
+        List<User> collect = list.stream().map(user ->
                 SafetyUserUtils.getSafetyUser(user)).collect(Collectors.toList());
-        return new BaseResponse(0,userList,"ok");
+        return ResultUtils.success(collect);
+        //return new BaseResponse(0,userList,"ok");
     }
 
     /**
@@ -145,9 +153,9 @@ public class UserController {
         if (id < 0){
             return null;
         }
-        boolean b = userService.removeById(id);
-        return new BaseResponse(0,b,"ok");
-
+        Boolean res = userService.removeById(id);
+        return ResultUtils.success(res);
+        //return new BaseResponse(0,b,"ok");
     }
     
 }

@@ -2,6 +2,8 @@ package com.carrot.usercenter.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.carrot.usercenter.common.ErrorCode;
+import com.carrot.usercenter.exception.BusinessException;
 import com.carrot.usercenter.pojo.User;
 import com.carrot.usercenter.service.UserService;
 import com.carrot.usercenter.mapper.UserMapper;
@@ -39,22 +41,27 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     public Long userRegister(String userAccount, String userPassword, String checkPassword,String planetCode) {
         //1.判断是否为空
         if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword,planetCode)) {
-            return -1L;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"用户输入为空");
         }
         //判断账户长度是否小于4
         if (userAccount.length() < 4) {
-            return -1L;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"账户长度小于4");
+
         }
         //判断密码是否小于8
         if (userPassword.length() < 8) {
-            return -1L;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"密码小于8");
+
         }
         //星球编号长度的限制
         if (planetCode.length() > 5){
-            return -1L;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"星球编号长度大于5");
+
         }
+        //星球编号长度的限制
         if (planetCode.length() < 0){
-            return -1L;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"星球编号长度小于0");
+
         }
         //判断账户是否包含特殊字符，使用正则表达式
         String validPatern = "[`~!@#$%^&*()+=|{}':;',\\\\[\\\\].<>/?~！@#￥%……&*（）——+|{}【】‘；：”“’。，、？]";
