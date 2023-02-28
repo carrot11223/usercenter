@@ -10,5 +10,11 @@
         <property name="serverTimezone" value="GMT" />
       </driver-properties>
     </data-source>
+    <data-source source="LOCAL" name="@sh-cynosdbmysql-grp-bmlet1ys.sql.tencentcdb.com" uuid="2b6b04bd-386a-412e-9230-c70fa7622971">
+      <driver-ref>mysql.8</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>com.mysql.jdbc.Driver</jdbc-driver>
+      <jdbc-url>jdbc:mysql://sh-cynosdbmysql-grp-bmlet1ys.sql.tencentcdb.com:26919</jdbc-url>
+    </data-source>
   </component>
 </project>

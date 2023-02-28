@@ -2,9 +2,10 @@
  spring:
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/usercenter?serverTimezone=GMT
+    url: "jdbc:mysql://sh-cynosdbmysql-grp-bmlet1ys.sql.tencentcdb.com:26919/usercenter"
     username: root
-    password: root
+    password: 1210comeon!!!
     #设置session超时时间为一天
-
+  session:
+    timeout: 86400
 
